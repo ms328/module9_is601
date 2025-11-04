@@ -63,10 +63,36 @@ async def read_root(request: Request):
     """
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/calculate/{operation}")
+async def calculate(operation: str, a: float, b: float):
+    """
+    Calculate result based on operation and parameters.
+    """
+    try:
+        if operation == "add":
+            result = add(a, b)
+        elif operation == "subtract":
+            result = subtract(a, b)
+        elif operation == "multiply":
+            result = multiply(a, b)
+        elif operation == "divide":
+            result = divide(a, b)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid operation")
+        
+        return {"result": result}
+    except ValueError as e:
+        logger.error(f"Operation Error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Internal Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @app.post("/add", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def add_route(operation: OperationRequest):
     """
-    Add two numbers.
+    Add two numbers via POST JSON body.
     """
     try:
         result = add(operation.a, operation.b)
@@ -75,10 +101,11 @@ async def add_route(operation: OperationRequest):
         logger.error(f"Add Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @app.post("/subtract", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def subtract_route(operation: OperationRequest):
     """
-    Subtract two numbers.
+    Subtract two numbers via POST JSON body.
     """
     try:
         result = subtract(operation.a, operation.b)
@@ -87,10 +114,11 @@ async def subtract_route(operation: OperationRequest):
         logger.error(f"Subtract Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @app.post("/multiply", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def multiply_route(operation: OperationRequest):
     """
-    Multiply two numbers.
+    Multiply two numbers via POST JSON body.
     """
     try:
         result = multiply(operation.a, operation.b)
@@ -99,10 +127,11 @@ async def multiply_route(operation: OperationRequest):
         logger.error(f"Multiply Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @app.post("/divide", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def divide_route(operation: OperationRequest):
     """
-    Divide two numbers.
+    Divide two numbers via POST JSON body.
     """
     try:
         result = divide(operation.a, operation.b)
